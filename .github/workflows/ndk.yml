@@ -1,5 +1,5 @@
 name: 'O-MVLL NDK'
-on: push
+on: [push, workflow_dispatch]
 
 jobs:
   build:
@@ -32,19 +32,8 @@ jobs:
             ./sample-omvll-config.py
             ./Python-3.10.7
           outPath: ${{ github.workspace }}/dist/omvll_ndk_r26.tar.gz
-      - name: O-MVLL Deployment
-        env:
-          BUILD38_S3_KEY: ${{ secrets.BUILD38_S3_KEY }}
-          BUILD38_S3_SECRET: ${{ secrets.BUILD38_S3_SECRET }}
-        shell: bash
-        run: |
-          docker run \
-            -v $GITHUB_WORKSPACE:/o-mvll \
-            -e GITHUB_ACTIONS="true" \
-            -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE \
-            -e GITHUB_REF=$GITHUB_REF \
-            -e GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
-            -e BUILD38_S3_KEY=$BUILD38_S3_KEY \
-            -e BUILD38_S3_SECRET=$BUILD38_S3_SECRET \
-            --rm \
-            openobfuscator/deployment python3 /o-mvll/.github/scripts/s3-deploy.py
+      - name: O-MVLL Upload artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: omvll_ndk
+          path: ${{ github.workspace }}/dist/omvll_ndk_r26.tar.gz
